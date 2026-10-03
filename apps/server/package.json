@@ -3,15 +3,20 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "PORT=7051 node --watch src/index.ts",
+        "dev": "PORT=7051 node --watch-path=src --watch-path=../../config src/index.ts",
+        "test": "vitest run",
         "typecheck": "tsc"
     },
     "dependencies": {
+        "@home-page/types": "workspace:*",
         "@hono/node-server": "^2.1.3",
-        "hono": "^4.13.12"
+        "hono": "^4.13.12",
+        "yaml": "^2.9.1",
+        "zod": "^4.6.5"
     },
     "devDependencies": {
         "@types/node": "^24.19.1",
-        "typescript": "~6.0.3"
+        "typescript": "~6.0.3",
+        "vitest": "^5.0.3"
     }
 }

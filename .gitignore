@@ -2,3 +2,8 @@ node_modules/
 dist/
 *.local
 .env
+
+# This dashboard's own data, not the app's. Mounted into the container, never
+# committed: dashboard.yaml names internal hosts and ports.
+config/dashboard.yaml
+config/icons/

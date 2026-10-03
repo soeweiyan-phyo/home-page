@@ -1,0 +1,28 @@
+# Copy to config/dashboard.yaml, and put custom icons in config/icons/. Both are
+# gitignored: the real config names internal hosts and ports. Compose mounts
+# them read-only into the container; restart the container after editing.
+#
+# icon: a dashboard-icons file name (jellyfin.png), a file in config/icons
+#   (/icons/film.png), or a Material Design glyph (mdi-robot).
+# container: the Docker container whose state draws the card's status dot.
+# Every service field but name is optional.
+
+groups:
+    - name: Media
+      services:
+          - name: Jellyfin
+            icon: jellyfin.png
+            href: http://server.local:8096
+            description: Media server
+            container: jellyfin
+          - name: My App
+            icon: /icons/film.png
+            href: http://server.local:7000
+            container: my-app
+
+    - name: Planned
+      collapsed: true
+      services:
+          - name: Assistant
+            icon: mdi-robot
+            description: Not built yet

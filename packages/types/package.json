@@ -1,0 +1,14 @@
+{
+    "name": "@home-page/types",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "scripts": {
+        "typecheck": "tsc"
+    },
+    "devDependencies": {
+        "typescript": "~6.0.3"
+    }
+}

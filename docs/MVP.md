@@ -22,8 +22,20 @@ until this one does everything, then Homepage is removed.
 ### Config
 
 `config/dashboard.yaml` holds the greeting, the disks and the service groups. It
-is committed and built into the image, and validated with zod both at boot and
-during the Docker build.
+names every internal host, port and container, so it is gitignored and never
+built into the image. Compose bind-mounts the host's copy read-only, and the
+server validates it with zod at boot.
+
+Custom icons live beside it in `config/icons/`, gitignored and mounted the same
+way. They belong to this dashboard, not to the app. Hono serves them at
+`/icons/*` from that folder as its root, so `dashboard.yaml` next door is out of
+reach; a test pins that.
+
+`config/dashboard.example.yaml` is committed instead, with made-up hosts, to
+document the format. A test parses it so it cannot fall behind the schema.
+
+The cost: a broken edit is no longer caught by the build. The container fails
+at boot instead, and an edit needs a container restart to take effect.
 
 ### Ports (block 7050–7059)
 
@@ -100,15 +112,16 @@ single quotes).
     - `~/docker/homepage/config/services.yaml` and `widgets.yaml` go into
       `config/dashboard.yaml`. Drop `server:` and flatten to
       `groups[].services[]`.
-    - `~/docker/homepage/icons/*` go into `apps/web/public/icons/`.
+    - `~/docker/homepage/icons/*` go into `config/icons/`.
 
 ## Repo shape
 
 ```
 package.json  pnpm-workspace.yaml  Dockerfile  docker-compose.yaml  CLAUDE.md
-config/dashboard.yaml
+config/dashboard.example.yaml         # committed; the real dashboard.yaml is gitignored
 packages/types/src/index.ts           # Dashboard, Group, Service, Icon, StatusMap, SystemStats
-apps/server/src/index.ts              # routes, onError → 502, serveStatic, serve
+apps/server/src/index.ts              # load config, serve
+apps/server/src/app.ts (+ .test)      # createApp: routes, /icons, onError → 502, SPA
 apps/server/src/config.ts (+ .test)   # zod schema, loadConfig, resolveIcon, toDashboard
 apps/server/src/docker.ts (+ .test)   # toStatus, statusMap — only module that knows Docker's JSON
 apps/server/src/system.ts (+ .test)   # cpuPercent, parseMeminfo, pickCpuTemp, readDisks
@@ -134,27 +147,32 @@ Seam: `config.ts`.
 
 - Add the `packages/types` package and Vitest.
 - Tests:
-    - `resolveIcon`:
+    - `resolveIcon`, covering only the forms the config uses:
         - none → `null`
-        - `name.png`, `.svg` or `.webp` → dashboard-icons CDN URL in the matching
-          folder
-        - `/icons/…` and `https://…` → passed through
+        - `name.png` → dashboard-icons CDN URL
+        - `/icons/…` → passed through
         - `mdi-*` → pinned `@mdi/svg` URL with `mono: true`
-    - The strict schema rejects an unknown key and a missing `name`.
-    - The real `config/dashboard.yaml` parses.
+    - The strict schema rejects an unknown key.
+    - `config/dashboard.example.yaml` parses.
+    - `/icons/*` serves a file from the icons folder, and no traversal path
+      (`..%2F`, `%2e%2e`, `..%5C`) reaches `dashboard.yaml` beside it.
 - Then `/api/dashboard`, with groups rendered as `<details open={!collapsed}>`.
 
 ### 2. Ship it
 
 - Dockerfile: multi-stage on `node:24-slim`, `USER node`, `HEALTHCHECK` on
   `/api/health`.
-- Compose: app only, with `/mnt/adata` and `/mnt/s-power` mounted `:ro`.
+- Compose: app only, with `./config/dashboard.yaml`, `./config/icons`,
+  `/mnt/adata` and `/mnt/s-power` mounted `:ro`. `.dockerignore` excludes both
+  config paths so they never land in an image layer.
 - Then do the deploy registration below.
 - Verify:
     - `orion.local:7050` loads.
     - The container reports healthy.
-    - A deliberately broken YAML fails `pnpm prod` while the old container keeps
-      serving.
+    - `docker run --rm --entrypoint ls home-page config` shows no
+      `dashboard.yaml` in the image.
+    - A deliberately broken YAML plus a restart leaves the container failing
+      with the zod error in `docker logs home-page`.
 
 ### 3. Status dots
 
