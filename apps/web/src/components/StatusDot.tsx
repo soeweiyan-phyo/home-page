@@ -32,7 +32,7 @@ export default function StatusDot({ container }: { container: string }) {
             role="img"
             title={state.detail ?? state.status}
             aria-label={state.status}
-            className={`block size-2 rounded-full ${LOOK[state.status]}`}
+            className={`block size-3 rounded-full ${LOOK[state.status]}`}
         />
     )
 }

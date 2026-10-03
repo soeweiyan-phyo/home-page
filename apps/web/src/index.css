@@ -64,7 +64,11 @@
     }
 
     /* The nebula, behind everything. Overscanned by 1rem so the blur does not
-       fade to the void colour at the viewport edges. */
+       fade to the void colour at the viewport edges.
+       Dimmed only slightly. Homepage's settings asked for 35% brightness, but
+       it rendered that as backdrop-brightness-35, a class Tailwind v3 does not
+       ship, so its photo always showed at full strength. 85% keeps that look
+       and takes the edge off the brightest patches behind the cards. */
     body::before {
         content: '';
         position: fixed;
@@ -72,6 +76,36 @@
         z-index: -1;
         background: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=2400&q=80&auto=format')
             center / cover;
-        filter: blur(4px) brightness(0.35) saturate(0.9);
+        filter: blur(4px) brightness(0.85);
+    }
+
+    /* Group collapse and expand. interpolate-size lets height animate to
+       auto; browsers without it (Firefox, Safari as of 2026-10) open and close
+       instantly, which is what <details> does anyway. */
+    :root {
+        interpolate-size: allow-keywords;
+    }
+
+    details::details-content {
+        block-size: 0;
+        overflow: clip;
+        /* Room for a card's hover lift and shadow, which a tight clip cuts. */
+        overflow-clip-margin: 1rem;
+        opacity: 0;
+        transition:
+            block-size 0.25s ease,
+            opacity 0.25s ease,
+            content-visibility 0.25s allow-discrete;
+    }
+
+    details[open]::details-content {
+        block-size: auto;
+        opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        details::details-content {
+            transition: none;
+        }
     }
 }

@@ -8,7 +8,7 @@ function ServiceIcon({ icon }: { icon: Icon }) {
         return (
             <span
                 aria-hidden="true"
-                className="size-8 shrink-0 bg-dim mask-contain mask-center mask-no-repeat"
+                className="size-9 shrink-0 bg-dim mask-contain mask-center mask-no-repeat"
                 style={{ maskImage: `url(${icon.src})` }}
             />
         )
@@ -19,13 +19,13 @@ function ServiceIcon({ icon }: { icon: Icon }) {
             src={icon.src}
             alt=""
             loading="lazy"
-            className="size-8 shrink-0 object-contain"
+            className="size-9 shrink-0 object-contain"
         />
     )
 }
 
 const FRAME =
-    'flex h-full items-center gap-3 rounded border border-rule bg-panel px-3 py-2.5 backdrop-blur-md backdrop-saturate-140'
+    'flex h-full items-center gap-4 rounded select-none border border-rule bg-panel px-3 py-2.5 backdrop-blur-md backdrop-saturate-140'
 
 export default function ServiceCard({ service }: { service: Service }) {
     const body = (

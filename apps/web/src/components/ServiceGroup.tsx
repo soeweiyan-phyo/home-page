@@ -15,7 +15,7 @@ export default function ServiceGroup({
     return (
         <details open={!group.collapsed} className="group">
             {/* The plate label: index, tracked name, hairline to the edge. */}
-            <summary className="mb-3 flex cursor-pointer list-none items-baseline gap-[0.7rem] rounded-sm font-cond text-plate font-semibold tracking-[0.22em] text-star uppercase text-shadow-lift focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sirius max-sm:tracking-[0.16em] [&::-webkit-details-marker]:hidden">
+            <summary className="mb-5 flex cursor-pointer list-none items-baseline gap-[0.7rem] rounded-sm font-cond text-plate font-semibold tracking-[0.22em] text-star uppercase text-shadow-lift focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sirius max-sm:tracking-[0.16em] [&::-webkit-details-marker]:hidden">
                 {/* Plex Sans, not Mono: Mono has no Greek. */}
                 <span className="font-sans text-[0.95rem] leading-none font-medium tracking-normal text-sirius/90 normal-case">
                     {BAYER[index] ?? index + 1}
@@ -35,7 +35,7 @@ export default function ServiceGroup({
                     <path d="M3.5 2 6.5 5 3.5 8" />
                 </svg>
             </summary>
-            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
                 {group.services.map((service) => (
                     <li key={service.name}>
                         <ServiceCard service={service} />

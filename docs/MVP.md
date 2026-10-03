@@ -293,8 +293,11 @@ Seams: `toContainerStats` in `docker.ts`, and the Hono app for
 ### 6. ORION look
 
 Homepage's `custom.css`, ported into Tailwind `@theme` tokens in `index.css`:
-the nebula at 35% brightness, frosted panels, IBM Plex in three roles, plate
-labels with a Bayer index and a hairline rule. Changed on the way:
+the nebula with a light blur at 85% brightness, frosted panels, IBM Plex in three
+roles, plate labels with a Bayer index and a hairline rule. Homepage's settings
+asked for 35% brightness, but its `backdrop-brightness-35` class does not exist
+in Tailwind v3, so the photo always showed at full strength; that is the look
+copied. Changed on the way:
 
 - Plex is self-hosted through `@fontsource`. The Greek indices are set in Plex
   Sans, because Plex Mono has no Greek and Homepage fell back to a system font.
