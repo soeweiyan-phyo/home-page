@@ -97,7 +97,8 @@ build step and no tsx. Node does not type-check, so the Dockerfile runs
 
 ### Left out of the MVP
 
-TanStack Router, shadcn, React Compiler and ESLint. Prettier, husky and
+TanStack Router, shadcn and ESLint. React Compiler is in, wired through
+`@rolldown/plugin-babel` as in book-library. Prettier, husky and
 commitlint stay, configured like book-library (4-space tabs, no semicolons,
 single quotes).
 
