@@ -14,7 +14,8 @@ one thing it cannot:
 - grouped service cards with links
 - live container status dots
 - a header with the greeting, date, CPU, memory, temperature, uptime and disks
-- a restart button on each container's card
+- a detail strip on each container's card, opened from its status dot: live
+  CPU, memory and network, and a restart button
 
 It also carries over Homepage's ORION look. Both dashboards run side by side
 until this one does everything, then Homepage is removed.
@@ -85,6 +86,20 @@ configured container. Accepted for a single-user LAN. Three guards narrow it:
   POST from a browser on the LAN; a cross-site request with a custom header
   needs a CORS preflight this server never grants.
 - The button asks for confirmation.
+
+The button lives in the card's detail strip, not on the card face: one click
+deeper is the right distance for something that kills a running service.
+
+### Container stats on demand
+
+Clicking a card's status dot opens a strip with the container's CPU, memory,
+and network received and sent, as Homepage does. It reads Docker's
+`GET /containers/{name}/stats`, which the read proxy already passes.
+
+Docker takes 1–2 s per container to answer, since it samples twice for CPU, so
+stats load only for an open strip and refresh every 5 s while it stays open;
+never for every card at once. The server answers only for containers named in
+`dashboard.yaml`.
 
 ### System stats from the Node standard library
 
@@ -241,19 +256,35 @@ Seam: `system.ts` and web `format.ts`.
   `:ro` in compose, at its host path.
 - Verify against `df -B1`, `free -b`, the hwmon `temp1_input` and `uptime`.
 
-### 5. Restart button
+### 5. Card details: stats and restart
 
-Seam: the Hono app, `POST /api/containers/:name/restart`.
+Seams: `toContainerStats` in `docker.ts`, and the Hono app for
+`GET /api/containers/:name/stats` and `POST /api/containers/:name/restart`.
 
-- Tests:
+- Tests, stats first:
+    - CPU % from the change between Docker's two samples, across all cores;
+      0 rather than NaN when the system counter has not moved.
+    - Memory excludes reclaimable page cache (`inactive_file`), as
+      `docker stats` does.
+    - Received and sent sum every network interface; a container sharing
+      another's network (qbittorrent and prowlarr on gluetun) has none and
+      reads `null`, shown as "—", not 0.
+    - Stats for a container not named in the config are refused, and Docker is
+      never asked.
+- Then the restart tests:
     - A container not named in the config is refused, and the restart proxy is
       never called.
     - A request without the custom header is refused, and the proxy is never
       called.
     - A configured container with the header reaches the proxy's restart path.
-- Then add the `restart-proxy` service to compose, and a button before the
-  status dot that confirms, posts, and refetches the status.
+- Then add the `restart-proxy` service to compose. The status dot becomes a
+  button that opens the strip: four readings in the card's plate-data style,
+  and Restart, which confirms, posts, and refetches the status.
 - Verify:
+    - Opening a strip shows the same figures as `docker stats --no-stream`
+      for that container, within a refresh.
+    - Only the open strip polls: watch the requests while two strips are
+      closed.
     - Restarting recyclarr from the page shows it restarting, then up.
     - `curl -X POST` without the header, or for an unconfigured name, is
       refused.
