@@ -11,6 +11,8 @@ export const ICONS_DIR = join(CONFIG_DIR, 'icons')
 
 // Strict, so a misspelt key fails instead of being dropped.
 const ConfigSchema = z.strictObject({
+    greeting: z.string(),
+    disks: z.array(z.string()).default([]),
     groups: z.array(
         z.strictObject({
             name: z.string(),
@@ -32,6 +34,7 @@ export const parseDashboard = (source: string): Dashboard => {
     const config = ConfigSchema.parse(parse(source))
 
     return {
+        ...config,
         groups: config.groups.map((group) => ({
             ...group,
             services: group.services.map((service) => ({

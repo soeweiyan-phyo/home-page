@@ -7,6 +7,15 @@
 # container: the Docker container whose state draws the card's status dot.
 # Every service field but name is optional.
 
+greeting: HOME
+
+# Mount points whose usage the header shows. Each one other than / must also be
+# mounted into the container in docker-compose.yaml, or it reports the
+# container's own root disk instead.
+disks:
+    - /
+    - /mnt/media
+
 groups:
     - name: Media
       services:

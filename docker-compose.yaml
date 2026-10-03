@@ -33,6 +33,12 @@ services:
               read_only: true
               bind:
                   create_host_path: false
+            # One per disk in dashboard.yaml, at the same path, for statfs.
+            # / needs none: the container's overlay sits on the host's root
+            # disk.
+            - /mnt/adata:/mnt/adata:ro
+            - /mnt/s-power:/mnt/s-power:ro
+            - /mnt/passport:/mnt/passport:ro
 
     # The app never holds docker.sock: anything that can reach the socket can
     # start, stop or create containers, which is root on the host. This proxy

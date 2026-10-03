@@ -222,13 +222,15 @@ Seam: `docker.ts`.
 Seam: `system.ts` and web `format.ts`.
 
 - Tests:
-    - `cpuPercent`, including a zero delta returning 0
-    - `parseMeminfo` (kB → bytes)
-    - `pickCpuTemp`: coretemp, then k10temp, else `null`
-    - `formatBytes`
-    - `formatUptime`
-- Then `/api/system`, the Resources component, and Clock using `Intl` with
-  `en-AU`. Mount `/mnt/adata` and `/mnt/s-power` `:ro` in compose.
+    - `cpuPercent` across cores, and 0 rather than NaN for a zero delta
+    - `parseMeminfo`: used is MemTotal − MemAvailable, in bytes
+    - `readCpuTemp` against a fake hwmon folder: coretemp found by name, `null`
+      without one. Orion is Intel, so no AMD fallback.
+    - `readDisks`: an unreadable mount reads `null` and the rest still report
+    - `formatBytes` (powers of 1024, so 1 TB reads 931 GB) and `formatUptime`
+- Then `greeting` and `disks` in `dashboard.yaml`, `/api/system`, the Header,
+  Resources and Clock (`Intl` with `en-AU`). Mount each disk other than `/`
+  `:ro` in compose, at its host path.
 - Verify against `df -B1`, `free -b`, the hwmon `temp1_input` and `uptime`.
 
 ### 5. Restart button

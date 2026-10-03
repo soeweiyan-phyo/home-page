@@ -20,6 +20,9 @@ export interface Group {
 }
 
 export interface Dashboard {
+    greeting: string
+    /** Mount points whose usage the header shows. */
+    disks: string[]
     groups: Group[]
 }
 
@@ -33,3 +36,26 @@ export interface ContainerStatus {
 
 /** Keyed by container name. Only containers named in the config. */
 export type StatusMap = Record<string, ContainerStatus>
+
+/** Bytes. used counts root-reserved blocks; free is what a user can write. */
+export interface DiskUsage {
+    total: number
+    used: number
+    free: number
+}
+
+export interface Disk {
+    mount: string
+    /** null when the mount could not be read. */
+    usage: DiskUsage | null
+}
+
+export interface SystemStats {
+    cpuPercent: number
+    /** Bytes. used excludes reclaimable cache: MemTotal − MemAvailable. */
+    memory: { total: number; used: number }
+    /** null when the host has no coretemp sensor. */
+    cpuTempC: number | null
+    uptimeSeconds: number
+    disks: Disk[]
+}

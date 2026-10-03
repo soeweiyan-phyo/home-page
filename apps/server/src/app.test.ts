@@ -15,7 +15,7 @@ describe('/icons', () => {
         writeFileSync(join(config, 'dashboard.yaml'), 'secret-hosts')
 
         app = createApp({
-            dashboard: { groups: [] },
+            dashboard: { greeting: '', disks: [], groups: [] },
             iconsDir: join(config, 'icons'),
             dockerUrl: 'http://127.0.0.1:1',
         })

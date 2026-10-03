@@ -1,4 +1,4 @@
-import type { Dashboard, StatusMap } from '@home-page/types'
+import type { Dashboard, StatusMap, SystemStats } from '@home-page/types'
 import { queryOptions } from '@tanstack/react-query'
 
 const getJson = async <T>(path: string): Promise<T> => {
@@ -21,4 +21,10 @@ export const statusQuery = queryOptions({
     queryKey: ['status'],
     queryFn: () => getJson<StatusMap>('/api/status'),
     refetchInterval: 10_000,
+})
+
+export const systemQuery = queryOptions({
+    queryKey: ['system'],
+    queryFn: () => getJson<SystemStats>('/api/system'),
+    refetchInterval: 5_000,
 })

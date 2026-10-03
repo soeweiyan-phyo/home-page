@@ -2,6 +2,7 @@ import { serveStatic } from '@hono/node-server/serve-static'
 import type { Dashboard } from '@home-page/types'
 import { Hono } from 'hono'
 import { fetchContainers, statusMap } from './docker.ts'
+import { readSystem } from './system.ts'
 
 interface AppOptions {
     dashboard: Dashboard
@@ -35,6 +36,8 @@ export const createApp = ({
         c.json(statusMap(await fetchContainers(dockerUrl), containerNames)),
     )
 
+    api.get('/system', async (c) => c.json(await readSystem(dashboard.disks)))
+
     const app = new Hono()
 
     // Mounted here rather than stripped by the Vite proxy, so dev and prod
@@ -55,7 +58,8 @@ export const createApp = ({
     // fallback to index.html is needed.
     if (webDir) app.use('*', serveStatic({ root: webDir }))
 
-    // Every failure here is an upstream one: the socket proxy.
+    // What fails here is what the server reads from, the socket proxy or the
+    // host, so the answer is 502 rather than 500.
     app.onError((error, c) => {
         console.error(error)
         return c.json({ error: 'Upstream failure' }, 502)
