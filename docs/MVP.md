@@ -120,10 +120,18 @@ build step and no tsx. Node does not type-check, so the Dockerfile runs
 
 ### Left out of the MVP
 
-TanStack Router, shadcn and ESLint. React Compiler is in, wired through
-`@rolldown/plugin-babel` as in book-library. Prettier, husky and
-commitlint stay, configured like book-library (4-space tabs, no semicolons,
-single quotes).
+TanStack Router, shadcn, and ESLint on the server, where TypeScript strict
+covers most of what it would catch. React Compiler is in, wired through
+`@rolldown/plugin-babel` as in book-library. Prettier, husky and commitlint
+stay, configured like book-library (4-space tabs, no semicolons, single
+quotes).
+
+The web app has ESLint, set up like book-library's: type-aware
+typescript-eslint, react-hooks (which carries the React Compiler rules),
+react-refresh, TanStack Query's `recommended-strict`, and
+`better-tailwindcss`. Its class order matches `prettier-plugin-tailwindcss`, so
+the two never fight; its line-wrapping rule is off because Prettier owns
+wrapping. lint-staged runs `eslint --fix` before Prettier on commit.
 
 ## Sources to reuse
 

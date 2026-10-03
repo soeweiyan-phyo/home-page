@@ -1,3 +1,4 @@
 {
+    "apps/web/**/*.{ts,tsx}": ["pnpm --filter web exec eslint --fix"],
     "*": "prettier --write --ignore-unknown"
 }
