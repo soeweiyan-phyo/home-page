@@ -42,12 +42,13 @@ at boot instead, and an edit needs a container restart to take effect.
 
 ### Ports (block 7050–7059)
 
-| Port | Use                         |
-| :--- | :-------------------------- |
-| 7050 | the app (web and API)       |
-| 7051 | Hono in dev                 |
-| 7052 | socket proxy, loopback only |
-| 7053 | Vite in dev                 |
+| Port | Use                          |
+| :--- | :--------------------------- |
+| 7050 | the app (web and API)        |
+| 7051 | Hono in dev                  |
+| 7052 | socket proxy, loopback only  |
+| 7053 | Vite in dev                  |
+| 7054 | restart proxy, loopback only |
 
 ### One image
 
@@ -97,9 +98,11 @@ and network received and sent, as Homepage does. It reads Docker's
 `GET /containers/{name}/stats`, which the read proxy already passes.
 
 Docker takes 1–2 s per container to answer, since it samples twice for CPU, so
-stats load only for an open strip and refresh every 5 s while it stays open;
-never for every card at once. The server answers only for containers named in
-`dashboard.yaml`.
+stats load only for an open strip and refresh every 5 s while it stays open.
+Closed is the default. A header button opens every strip at once, as
+Homepage's `showStats` does: every container polled every 5 s, which Docker
+answers in parallel and which stops when the strips close. The server answers
+only for containers named in `dashboard.yaml`.
 
 ### System stats from the Node standard library
 
@@ -266,9 +269,11 @@ Seams: `toContainerStats` in `docker.ts`, and the Hono app for
       0 rather than NaN when the system counter has not moved.
     - Memory excludes reclaimable page cache (`inactive_file`), as
       `docker stats` does.
-    - Received and sent sum every network interface; a container sharing
-      another's network (qbittorrent and prowlarr on gluetun) has none and
-      reads `null`, shown as "—", not 0.
+    - Received and sent sum every network interface; a container with no
+      `networks` at all (no network, or host networking) reads `null`, shown
+      as "—", not 0. qbittorrent and prowlarr are not that case: sharing
+      gluetun's namespace, Docker reports gluetun's interface for them, so
+      their figures are the whole VPN tunnel's, as in Homepage.
     - Stats for a container not named in the config are refused, and Docker is
       never asked.
 - Then the restart tests:
@@ -279,7 +284,9 @@ Seams: `toContainerStats` in `docker.ts`, and the Hono app for
     - A configured container with the header reaches the proxy's restart path.
 - Then add the `restart-proxy` service to compose. The status dot becomes a
   button that opens the strip: four readings in the card's plate-data style,
-  and Restart, which confirms, posts, and refetches the status.
+  and Restart, which confirms with a second click within 4 s, posts, and
+  refetches the status. The card link stretches over the card rather than
+  wrapping it, since a button cannot sit inside a link.
 - Verify:
     - Opening a strip shows the same figures as `docker stats --no-stream`
       for that container, within a refresh.

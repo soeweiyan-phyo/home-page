@@ -1,7 +1,12 @@
 import { serveStatic } from '@hono/node-server/serve-static'
 import type { Dashboard } from '@home-page/types'
 import { Hono } from 'hono'
-import { fetchContainers, statusMap } from './docker.ts'
+import {
+    fetchContainers,
+    fetchStats,
+    restartContainer,
+    statusMap,
+} from './docker.ts'
 import { readSystem } from './system.ts'
 
 interface AppOptions {
@@ -9,6 +14,8 @@ interface AppOptions {
     iconsDir: string
     /** The Docker socket proxy, read-only. */
     dockerUrl: string
+    /** The second proxy, which passes container restarts and nothing else. */
+    restartUrl: string
     /** The built SPA. Omitted in dev, where Vite serves it. */
     webDir?: string
 }
@@ -17,6 +24,7 @@ export const createApp = ({
     dashboard,
     iconsDir,
     dockerUrl,
+    restartUrl,
     webDir,
 }: AppOptions) => {
     const containerNames = dashboard.groups.flatMap((group) =>
@@ -37,6 +45,30 @@ export const createApp = ({
     )
 
     api.get('/system', async (c) => c.json(await readSystem(dashboard.disks)))
+
+    // Before every per-container route: the page reaches only the containers
+    // it shows, so the rest of the host stays out of reach.
+    api.use('/containers/:name/*', async (c, next) => {
+        if (!containerNames.includes(c.req.param('name'))) {
+            return c.json({ error: 'Not a container on this dashboard' }, 404)
+        }
+
+        await next()
+    })
+
+    api.get('/containers/:name/stats', async (c) =>
+        c.json(await fetchStats(dockerUrl, c.req.param('name'))),
+    )
+
+    api.post('/containers/:name/restart', async (c) => {
+        if (c.req.header('X-Requested-With') !== 'home-page') {
+            return c.json({ error: 'Restarts come from the page only' }, 403)
+        }
+
+        await restartContainer(restartUrl, c.req.param('name'))
+
+        return c.body(null, 204)
+    })
 
     const app = new Hono()
 

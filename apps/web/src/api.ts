@@ -1,4 +1,9 @@
-import type { Dashboard, StatusMap, SystemStats } from '@home-page/types'
+import type {
+    ContainerStats,
+    Dashboard,
+    StatusMap,
+    SystemStats,
+} from '@home-page/types'
 import { queryOptions } from '@tanstack/react-query'
 
 const getJson = async <T>(path: string): Promise<T> => {
@@ -28,3 +33,29 @@ export const systemQuery = queryOptions({
     queryFn: () => getJson<SystemStats>('/api/system'),
     refetchInterval: 5_000,
 })
+
+/** Polled only while a card's details are open: Docker takes a second or two
+ * per container to answer. */
+export const containerStatsQuery = (container: string) =>
+    queryOptions({
+        queryKey: ['stats', container],
+        queryFn: () =>
+            getJson<ContainerStats>(
+                `/api/containers/${encodeURIComponent(container)}/stats`,
+            ),
+        refetchInterval: 5_000,
+    })
+
+export const restartContainer = async (container: string): Promise<void> => {
+    const response = await fetch(
+        `/api/containers/${encodeURIComponent(container)}/restart`,
+        {
+            method: 'POST',
+            // The server refuses a restart without it; another site cannot set
+            // it without a CORS preflight this server never grants.
+            headers: { 'X-Requested-With': 'home-page' },
+        },
+    )
+
+    if (!response.ok) throw new Error(`Restart answered ${response.status}`)
+}

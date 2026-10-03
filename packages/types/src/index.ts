@@ -37,6 +37,18 @@ export interface ContainerStatus {
 /** Keyed by container name. Only containers named in the config. */
 export type StatusMap = Record<string, ContainerStatus>
 
+/** One container's live usage, as docker stats reports it. */
+export interface ContainerStats {
+    /** Of one core, so a busy container on six cores can read up to 600. */
+    cpuPercent: number
+    /** Bytes, excluding reclaimable page cache. */
+    memory: number
+    /** Bytes since the container started. null when it has no network of its
+     * own to count. */
+    received: number | null
+    sent: number | null
+}
+
 /** Bytes. used counts root-reserved blocks; free is what a user can write. */
 export interface DiskUsage {
     total: number

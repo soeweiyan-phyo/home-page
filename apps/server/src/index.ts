@@ -6,9 +6,10 @@ import { DASHBOARD_PATH, ICONS_DIR, loadDashboard } from './config.ts'
 // Dev sets 7051 so it can run beside the deployed container on 7050.
 const PORT = Number(process.env.PORT ?? 7050)
 
-// Compose sets the proxy's service name. The default is its loopback port,
-// published for dev only.
+// Compose sets each proxy's service name. The defaults are their loopback
+// ports, published for dev only.
 const DOCKER_URL = process.env.DOCKER_URL ?? 'http://127.0.0.1:7052'
+const RESTART_URL = process.env.RESTART_URL ?? 'http://127.0.0.1:7054'
 
 const WEB_DIST = join(import.meta.dirname, '../../web/dist')
 
@@ -17,6 +18,7 @@ const app = createApp({
     dashboard: loadDashboard(DASHBOARD_PATH),
     iconsDir: ICONS_DIR,
     dockerUrl: DOCKER_URL,
+    restartUrl: RESTART_URL,
     webDir: process.env.NODE_ENV === 'production' ? WEB_DIST : undefined,
 })
 

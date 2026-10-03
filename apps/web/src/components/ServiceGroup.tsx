@@ -8,9 +8,14 @@ const BAYER = 'αβγδεζηθικλμνξοπρστυφχψω'
 export default function ServiceGroup({
     group,
     index,
+    openCards,
+    onToggleCard,
 }: {
     group: Group
     index: number
+    /** Containers whose details are open. */
+    openCards: ReadonlySet<string>
+    onToggleCard: (container: string) => void
 }) {
     return (
         <details open={!group.collapsed} className="group">
@@ -35,10 +40,21 @@ export default function ServiceGroup({
                     <path d="M3.5 2 6.5 5 3.5 8" />
                 </svg>
             </summary>
-            <ul className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+            {/* items-start: an opened card grows alone, not its whole row. */}
+            <ul className="grid grid-cols-1 items-start gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
                 {group.services.map((service) => (
                     <li key={service.name}>
-                        <ServiceCard service={service} />
+                        <ServiceCard
+                            service={service}
+                            open={
+                                service.container !== null &&
+                                openCards.has(service.container)
+                            }
+                            onToggle={() =>
+                                service.container &&
+                                onToggleCard(service.container)
+                            }
+                        />
                     </li>
                 ))}
             </ul>

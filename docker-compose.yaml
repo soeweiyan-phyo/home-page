@@ -16,8 +16,10 @@ services:
         environment:
             TZ: Australia/Melbourne
             DOCKER_URL: http://socket-proxy:2375
+            RESTART_URL: http://restart-proxy:2375
         depends_on:
             - socket-proxy
+            - restart-proxy
         volumes:
             # Long syntax, so a missing source fails the start instead of
             # Docker creating an empty directory in its place.
@@ -58,3 +60,26 @@ services:
         # also returns every container's environment, secrets included.
         ports:
             - '127.0.0.1:7052:2375'
+
+    # Restarts only. The read proxy cannot do this: its POST=1 would let
+    # CONTAINERS=1 pass any write under /containers, create and exec included.
+    # Here CONTAINERS stays 0, so the one write rule that matches is
+    # ALLOW_RESTARTS: restart, stop and kill of a single container.
+    restart-proxy:
+        image: tecnativa/docker-socket-proxy:v0.5.0
+        container_name: home-page-restart-proxy
+        restart: unless-stopped
+        environment:
+            TZ: Australia/Melbourne
+            POST: 1
+            ALLOW_RESTARTS: 1
+            # On by default and unused here.
+            EVENTS: 0
+            PING: 0
+            VERSION: 0
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        # Loopback only, for `pnpm dev`. It restarts any container, not just
+        # the dashboard's; the app's allowlist is what narrows it.
+        ports:
+            - '127.0.0.1:7054:2375'
