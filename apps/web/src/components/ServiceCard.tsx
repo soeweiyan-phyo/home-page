@@ -1,4 +1,5 @@
 import type { Service } from '@home-page/types'
+import StatusDot from './StatusDot.tsx'
 
 export default function ServiceCard({ service }: { service: Service }) {
     const body = (
@@ -18,6 +19,11 @@ export default function ServiceCard({ service }: { service: Service }) {
                     </p>
                 )}
             </div>
+            {service.container && (
+                <span className="ml-auto self-start">
+                    <StatusDot container={service.container} />
+                </span>
+            )}
         </>
     )
 

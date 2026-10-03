@@ -15,6 +15,9 @@ services:
             - '7050:7050'
         environment:
             TZ: Australia/Melbourne
+            DOCKER_URL: http://socket-proxy:2375
+        depends_on:
+            - socket-proxy
         volumes:
             # Long syntax, so a missing source fails the start instead of
             # Docker creating an empty directory in its place.
@@ -30,3 +33,22 @@ services:
               read_only: true
               bind:
                   create_host_path: false
+
+    # The app never holds docker.sock: anything that can reach the socket can
+    # start, stop or create containers, which is root on the host. This proxy
+    # passes GET only (POST defaults to 0).
+    socket-proxy:
+        image: tecnativa/docker-socket-proxy:v0.5.0
+        container_name: home-page-socket-proxy
+        restart: unless-stopped
+        environment:
+            TZ: Australia/Melbourne
+            CONTAINERS: 1
+            # On by default and unused here.
+            EVENTS: 0
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        # Loopback only, for `pnpm dev`. Never 0.0.0.0: GET on /containers/*
+        # also returns every container's environment, secrets included.
+        ports:
+            - '127.0.0.1:7052:2375'

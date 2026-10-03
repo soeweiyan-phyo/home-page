@@ -14,7 +14,11 @@ describe('/icons', () => {
         writeFileSync(join(config, 'icons', 'film.png'), 'film-bytes')
         writeFileSync(join(config, 'dashboard.yaml'), 'secret-hosts')
 
-        app = createApp({ groups: [] }, join(config, 'icons'))
+        app = createApp({
+            dashboard: { groups: [] },
+            iconsDir: join(config, 'icons'),
+            dockerUrl: 'http://127.0.0.1:1',
+        })
     })
 
     it('serves a file from the icons folder', async () => {

@@ -22,3 +22,14 @@ export interface Group {
 export interface Dashboard {
     groups: Group[]
 }
+
+export type ServiceStatus = 'up' | 'degraded' | 'down' | 'unknown'
+
+export interface ContainerStatus {
+    status: ServiceStatus
+    /** Docker's own words, like "Up 2 months (healthy)". null if absent. */
+    detail: string | null
+}
+
+/** Keyed by container name. Only containers named in the config. */
+export type StatusMap = Record<string, ContainerStatus>

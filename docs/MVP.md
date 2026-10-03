@@ -8,11 +8,13 @@ overrides against its internal class names, so any `:latest` pull can break it.
 It also cannot show custom card content, add interactivity, or integrate with
 my own apps.
 
-The MVP replaces it with this app and **only matches what Homepage does today**:
+The MVP replaces it with this app, **matches what Homepage does today**, and adds
+one thing it cannot:
 
 - grouped service cards with links
 - live container status dots
 - a header with the greeting, date, CPU, memory, temperature, uptime and disks
+- a restart button on each container's card
 
 Porting the ORION styling comes after the MVP. Both dashboards run side by side
 until this one does everything, then Homepage is removed.
@@ -62,6 +64,27 @@ Instead, a `tecnativa/docker-socket-proxy` sidecar runs with `CONTAINERS=1`. POS
 is denied by default, so the app can only read. `CONTAINERS=1` still allows GET
 on `/containers/{id}/json`, which includes other containers' environment
 variables, so the proxy is reachable only from the app and from host loopback.
+
+### Restarts through a second, restart-only proxy
+
+The read proxy cannot also restart. Its rules deny every POST unless `POST=1`,
+and with `POST=1` the `CONTAINERS=1` rule passes any POST under `/containers`:
+`/containers/create` and `/containers/{id}/exec` included, which is root on the
+host.
+
+So a second proxy runs with `POST=1`, `ALLOW_RESTARTS=1` and `CONTAINERS=0`. It
+passes only `/containers/{name}/restart` (and the `stop` and `kill` that
+`ALLOW_RESTARTS` brings with it), and publishes no port: only the app reaches
+it.
+
+The app has no login, so anyone who can open the dashboard can restart a
+configured container. Accepted for a single-user LAN. Three guards narrow it:
+
+- The server restarts only containers named in `dashboard.yaml`.
+- The endpoint requires a custom header, so another website cannot fire the
+  POST from a browser on the LAN; a cross-site request with a custom header
+  needs a CORS preflight this server never grants.
+- The button asks for confirmation.
 
 ### System stats from the Node standard library
 
@@ -208,12 +231,30 @@ Seam: `system.ts` and web `format.ts`.
   `en-AU`. Mount `/mnt/adata` and `/mnt/s-power` `:ro` in compose.
 - Verify against `df -B1`, `free -b`, the hwmon `temp1_input` and `uptime`.
 
-### 5. Minimal look
+### 5. Restart button
+
+Seam: the Hono app, `POST /api/containers/:name/restart`.
+
+- Tests:
+    - A container not named in the config is refused, and the restart proxy is
+      never called.
+    - A request without the custom header is refused, and the proxy is never
+      called.
+    - A configured container with the header reaches the proxy's restart path.
+- Then add the `restart-proxy` service to compose, and a button before the
+  status dot that confirms, posts, and refetches the status.
+- Verify:
+    - Restarting recyclarr from the page shows it restarting, then up.
+    - `curl -X POST` without the header, or for an unconfigured name, is
+      refused.
+    - The restart proxy refuses `POST /containers/create`.
+
+### 6. Minimal look
 
 Dark slate, the Unsplash background at 35% brightness, and frosted cards. No
 tests. The ORION `custom.css` port comes after the MVP.
 
-### 6. Cutover
+### 7. Cutover
 
 Stop Homepage, then update `PORT-REGISTRY.md`, `HOMELAB.md` and
 `~/docker/README.md`.
