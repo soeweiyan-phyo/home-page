@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "NodeNext",
+        "strict": true,
+        "types": ["node"],
+        "skipLibCheck": true,
+        "noEmit": true,
+
+        /* Node strips types itself, so only syntax it can erase is allowed */
+        "allowImportingTsExtensions": true,
+        "verbatimModuleSyntax": true,
+        "erasableSyntaxOnly": true,
+
+        "noUnusedLocals": true,
+        "noUnusedParameters": true
+    },
+    "include": ["src"]
+}
