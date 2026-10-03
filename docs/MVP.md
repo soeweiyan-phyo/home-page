@@ -163,17 +163,18 @@ Seam: `config.ts`.
 
 - Dockerfile: multi-stage on `node:24-slim`, `USER node`, `HEALTHCHECK` on
   `/api/health`.
-- Compose: app only, with `./config/dashboard.yaml`, `./config/icons`,
-  `/mnt/adata` and `/mnt/s-power` mounted `:ro`. `.dockerignore` excludes both
+- Hono serves the built SPA only when `NODE_ENV=production`; in dev, Vite does.
+- Compose: app only, with `./config/dashboard.yaml` and `./config/icons`
+  bind-mounted `:ro` and `create_host_path: false`, so a missing file fails the
+  start instead of becoming an empty directory. `.dockerignore` excludes both
   config paths so they never land in an image layer.
 - Then do the deploy registration below.
 - Verify:
     - `orion.local:7050` loads.
     - The container reports healthy.
-    - `docker run --rm --entrypoint ls home-page config` shows no
-      `dashboard.yaml` in the image.
-    - A deliberately broken YAML plus a restart leaves the container failing
-      with the zod error in `docker logs home-page`.
+    - `docker run --rm --entrypoint ls home-page /app/config` finds nothing:
+      the image has no config of its own.
+    - The image run with a broken YAML mounted exits 1 with the zod error.
 
 ### 3. Status dots
 
@@ -204,7 +205,7 @@ Seam: `system.ts` and web `format.ts`.
     - `formatBytes`
     - `formatUptime`
 - Then `/api/system`, the Resources component, and Clock using `Intl` with
-  `en-AU`.
+  `en-AU`. Mount `/mnt/adata` and `/mnt/s-power` `:ro` in compose.
 - Verify against `df -B1`, `free -b`, the hwmon `temp1_input` and `uptime`.
 
 ### 5. Minimal look

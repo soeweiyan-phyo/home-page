@@ -1,0 +1,8 @@
+# The dashboard's own data is mounted at run time, never baked into a layer.
+config/dashboard.yaml
+config/icons
+
+**/node_modules
+**/dist
+.git
+.husky

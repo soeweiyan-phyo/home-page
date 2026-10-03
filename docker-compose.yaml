@@ -1,0 +1,32 @@
+# Production stack. Dashboard on 7050; runs beside Homepage (:3000) until the
+# cutover.
+#
+#   pnpm prod        # docker compose up -d --build
+#
+# config/dashboard.yaml and config/icons/ belong to this host: gitignored and
+# mounted read-only. Restart the container after editing them.
+services:
+    app:
+        build: .
+        image: home-page
+        container_name: home-page
+        restart: unless-stopped
+        ports:
+            - '7050:7050'
+        environment:
+            TZ: Australia/Melbourne
+        volumes:
+            # Long syntax, so a missing source fails the start instead of
+            # Docker creating an empty directory in its place.
+            - type: bind
+              source: ./config/dashboard.yaml
+              target: /app/config/dashboard.yaml
+              read_only: true
+              bind:
+                  create_host_path: false
+            - type: bind
+              source: ./config/icons
+              target: /app/config/icons
+              read_only: true
+              bind:
+                  create_host_path: false

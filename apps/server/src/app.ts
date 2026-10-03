@@ -2,7 +2,12 @@ import { serveStatic } from '@hono/node-server/serve-static'
 import type { Dashboard } from '@home-page/types'
 import { Hono } from 'hono'
 
-export const createApp = (dashboard: Dashboard, iconsDir: string) => {
+/** webDir: the built SPA. Omitted in dev, where Vite serves it. */
+export const createApp = (
+    dashboard: Dashboard,
+    iconsDir: string,
+    webDir?: string,
+) => {
     const api = new Hono()
 
     api.get('/health', (c) => c.text('ok'))
@@ -24,6 +29,10 @@ export const createApp = (dashboard: Dashboard, iconsDir: string) => {
             rewriteRequestPath: (path) => path.slice('/icons'.length),
         }),
     )
+
+    // Last, so /api and /icons win. One page and no client routes, so no
+    // fallback to index.html is needed.
+    if (webDir) app.use('*', serveStatic({ root: webDir }))
 
     return app
 }
