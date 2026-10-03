@@ -7,12 +7,20 @@ export default function App() {
     const { data, error } = useQuery(dashboardQuery)
 
     return (
-        <main className="min-h-screen bg-slate-950 p-8 text-slate-100">
+        <main className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-8 sm:py-10">
             {data && <Header greeting={data.greeting} />}
-            {error && <p className="text-red-400">{error.message}</p>}
-            <div className="flex flex-col gap-8">
-                {data?.groups.map((group) => (
-                    <ServiceGroup key={group.name} group={group} />
+            {error && (
+                <p role="alert" className="font-mono text-sm text-betelgeuse">
+                    Dashboard unavailable: {error.message}
+                </p>
+            )}
+            <div className="flex flex-col gap-9">
+                {data?.groups.map((group, index) => (
+                    <ServiceGroup
+                        key={group.name}
+                        group={group}
+                        index={index}
+                    />
                 ))}
             </div>
         </main>

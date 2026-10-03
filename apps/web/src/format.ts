@@ -1,3 +1,19 @@
+import type { DiskUsage } from '@home-page/types'
+
+// s-power sat at 83% when this was set: close enough to watch, not yet alarming.
+const NEARLY_FULL = 0.85
+
+/** Fill as df's Use% measures it: root-reserved blocks are neither side. */
+export const diskFill = ({
+    used,
+    free,
+}: DiskUsage): { share: number; nearlyFull: boolean } => {
+    const usable = used + free
+    const share = usable === 0 ? 0 : used / usable
+
+    return { share, nearlyFull: share >= NEARLY_FULL }
+}
+
 const UNITS = ['B', 'KB', 'MB', 'GB', 'TB']
 
 /**

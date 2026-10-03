@@ -16,7 +16,7 @@ one thing it cannot:
 - a header with the greeting, date, CPU, memory, temperature, uptime and disks
 - a restart button on each container's card
 
-Porting the ORION styling comes after the MVP. Both dashboards run side by side
+It also carries over Homepage's ORION look. Both dashboards run side by side
 until this one does everything, then Homepage is removed.
 
 ## Decisions
@@ -259,10 +259,21 @@ Seam: the Hono app, `POST /api/containers/:name/restart`.
       refused.
     - The restart proxy refuses `POST /containers/create`.
 
-### 6. Minimal look
+### 6. ORION look
 
-Dark slate, the Unsplash background at 35% brightness, and frosted cards. No
-tests. The ORION `custom.css` port comes after the MVP.
+Homepage's `custom.css`, ported into Tailwind `@theme` tokens in `index.css`:
+the nebula at 35% brightness, frosted panels, IBM Plex in three roles, plate
+labels with a Bayer index and a hairline rule. Changed on the way:
+
+- Plex is self-hosted through `@fontsource`. The Greek indices are set in Plex
+  Sans, because Plex Mono has no Greek and Homepage fell back to a system font.
+- Indices come from the group order in React, not `nth-of-type`, so any number
+  of groups works.
+- Only degraded and down dots pulse, so movement means trouble.
+- Each disk gets a gauge that turns betelgeuse at `NEARLY_FULL`. Tested: the
+  threshold and df's Use% arithmetic.
+- The system mark is an SVG component in the theme colours, and the favicon.
+- On a narrow screen the clock sits under the wordmark, above the readings.
 
 ### 7. Cutover
 
@@ -312,8 +323,6 @@ Done as part of slice 2.
 
 ## After the MVP
 
-- **ORION styling:** port `custom.css` into Tailwind `@theme` tokens in
-  `index.css`.
 - **Per-app widgets** (for example a Sonarr queue): an optional `widget` key on
   a service, `/api/widgets/:id`, and one server module per app. API keys go in a
   gitignored `.env` on orion, never in the YAML built into the image.

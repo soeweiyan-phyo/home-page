@@ -5,7 +5,7 @@ const FORMAT = new Intl.DateTimeFormat('en-AU', {
     timeStyle: 'short',
 })
 
-export default function Clock() {
+export default function Clock({ className }: { className?: string }) {
     const [now, setNow] = useState(() => new Date())
 
     useEffect(() => {
@@ -15,7 +15,10 @@ export default function Clock() {
     }, [])
 
     return (
-        <time dateTime={now.toISOString()} className="text-slate-300">
+        <time
+            dateTime={now.toISOString()}
+            className={`font-mono tracking-[0.04em] whitespace-nowrap text-star text-shadow-lift ${className ?? ''}`}
+        >
             {FORMAT.format(now)}
         </time>
     )

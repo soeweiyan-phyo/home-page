@@ -1,1 +1,77 @@
 @import 'tailwindcss';
+
+/* ORION: star-atlas typography over a nebula. Hairline rules, plate labels,
+   Bayer-style catalogue indices, frosted cards. */
+
+@theme {
+    --color-void: #05080f;
+    --color-star: #eef3fb;
+    --color-dim: #a4b4cf;
+    --color-sirius: #8ccbff;
+    --color-betelgeuse: #ff9b5a;
+
+    /* Translucent so the nebula frosts through. 0.66 rather than lighter:
+       the photo is busy and text needs the separation. */
+    --color-panel: rgb(10 16 27 / 0.66);
+    --color-panel-hover: rgb(16 25 40 / 0.8);
+    --color-rule: rgb(255 255 255 / 0.1);
+    --color-rule-bright: rgb(255 255 255 / 0.28);
+
+    --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-cond: 'IBM Plex Sans Condensed', 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+    --text-plate: 0.78rem;
+    --text-name: 0.83rem;
+    --text-data: 0.66rem;
+
+    /* Text sitting on the photo with no panel behind it. A halo, not a drop
+       shadow: it keeps letters off the brightest parts of the nebula. */
+    --text-shadow-lift: 0 0 10px rgb(0 0 0 / 0.45);
+
+    --shadow-lift: 0 6px 20px -10px rgb(0 0 0 / 0.5);
+
+    --animate-pulse-ring: pulse-ring 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    --animate-core: core 2.8s ease-in-out infinite;
+
+    /* --ring is set per status: box-shadow cannot read the background. */
+    @keyframes pulse-ring {
+        0% {
+            box-shadow: 0 0 0 0 rgb(var(--ring) / 0.45);
+        }
+        70% {
+            box-shadow: 0 0 0 8px rgb(var(--ring) / 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgb(var(--ring) / 0);
+        }
+    }
+
+    @keyframes core {
+        0%,
+        100% {
+            filter: drop-shadow(0 0 2px rgb(140 203 255 / 0.4));
+        }
+        50% {
+            filter: drop-shadow(0 0 7px rgb(140 203 255 / 0.8));
+        }
+    }
+}
+
+@layer base {
+    body {
+        @apply bg-void font-sans text-star antialiased;
+    }
+
+    /* The nebula, behind everything. Overscanned by 1rem so the blur does not
+       fade to the void colour at the viewport edges. */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: -1rem;
+        z-index: -1;
+        background: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=2400&q=80&auto=format')
+            center / cover;
+        filter: blur(4px) brightness(0.35) saturate(0.9);
+    }
+}
