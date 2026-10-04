@@ -19,6 +19,7 @@ describe('/icons', () => {
             iconsDir: join(config, 'icons'),
             dockerUrl: 'http://127.0.0.1:1',
             restartUrl: 'http://127.0.0.1:1',
+            deployDir: '/nonexistent',
         })
     })
 

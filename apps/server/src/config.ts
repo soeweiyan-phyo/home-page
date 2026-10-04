@@ -24,6 +24,11 @@ const ConfigSchema = z.strictObject({
                     href: z.url().optional(),
                     description: z.string().optional(),
                     container: z.string().optional(),
+                    // A file name in the deploy state folder, so no slashes.
+                    repo: z
+                        .string()
+                        .regex(/^[\w.-]+$/)
+                        .optional(),
                 }),
             ),
         }),
@@ -43,6 +48,7 @@ export const parseDashboard = (source: string): Dashboard => {
                 href: service.href ?? null,
                 description: service.description ?? null,
                 container: service.container ?? null,
+                repo: service.repo ?? null,
             })),
         })),
     }

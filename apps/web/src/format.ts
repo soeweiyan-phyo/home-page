@@ -43,3 +43,18 @@ export const formatUptime = (seconds: number): string => {
 
     return `${minutes}m`
 }
+
+export const formatAge = (seconds: number): string => {
+    if (seconds < 60) return 'just now'
+    if (seconds < 3_600) return `${Math.floor(seconds / 60)} min ago`
+    if (seconds < 86_400) return `${Math.floor(seconds / 3_600)} h ago`
+
+    return `${Math.floor(seconds / 86_400)} d ago`
+}
+
+// auto-deploy's timer fires every 5 min; three missed runs means it stopped,
+// and an unchanging status would otherwise read as healthy forever.
+const STALE_AFTER_MS = 15 * 60_000
+
+export const isStale = (checkedAt: string, now: Date): boolean =>
+    now.getTime() - Date.parse(checkedAt) > STALE_AFTER_MS

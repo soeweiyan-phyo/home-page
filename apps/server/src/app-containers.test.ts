@@ -31,6 +31,7 @@ beforeAll(async () => {
                             href: null,
                             description: null,
                             container: 'jellyfin',
+                            repo: null,
                         },
                     ],
                 },
@@ -39,6 +40,7 @@ beforeAll(async () => {
         iconsDir: '/nonexistent',
         dockerUrl: url,
         restartUrl: url,
+        deployDir: '/nonexistent',
     })
 })
 

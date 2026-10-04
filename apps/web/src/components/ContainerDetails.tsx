@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { containerStatsQuery, restartContainer, statusQuery } from '../api.ts'
 import { formatBytes } from '../format.ts'
+import DeployDetails from './DeployDetails.tsx'
 
 // How long "Confirm restart" waits for the second click before backing off.
 const CONFIRM_MS = 4_000
@@ -28,9 +29,12 @@ const bytes = (value: number | null) =>
 export default function ContainerDetails({
     id,
     container,
+    repo,
 }: {
     id: string
     container: string
+    /** The card's auto-deployed repo, if any, for the deploy row. */
+    repo: string | null
 }) {
     const queryClient = useQueryClient()
     const { data, isError } = useQuery(containerStatsQuery(container))
@@ -78,6 +82,7 @@ export default function ContainerDetails({
                     <Tile label="TX" value={data ? bytes(data.sent) : '…'} />
                 </div>
             )}
+            {repo && <DeployDetails repo={repo} />}
             <div className="flex items-center justify-end gap-3 text-data">
                 {restart.isError && (
                     <span role="alert" className="text-betelgeuse">

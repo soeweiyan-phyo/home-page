@@ -11,6 +11,8 @@ export interface Service {
     description: string | null
     /** The Docker container behind the card. null draws no status dot. */
     container: string | null
+    /** The auto-deployed repo behind the card. null shows no deploy status. */
+    repo: string | null
 }
 
 export interface Group {
@@ -36,6 +38,34 @@ export interface ContainerStatus {
 
 /** Keyed by container name. Only containers named in the config. */
 export type StatusMap = Record<string, ContainerStatus>
+
+/** auto-deploy's last cycle for one repo. deploying is written as a build
+ * starts; the skips mean local changes or local commits blocked the deploy. */
+export interface DeployStatus {
+    status:
+        | 'up-to-date'
+        | 'deploying'
+        | 'skipped-dirty'
+        | 'skipped-ahead'
+        | 'failed'
+    /** Where a failure happened. null unless failed. */
+    stage: 'fetch' | 'build' | null
+    branch: string | null
+    /** The last commit that built, so the one running. */
+    running: string | null
+    runningMessage: string | null
+    /** The branch's commit on GitHub. */
+    remote: string | null
+    /** The running commit on GitHub. null for an origin elsewhere. */
+    commitUrl: string | null
+    /** ISO time of the cycle that wrote this. */
+    checkedAt: string
+    /** The last lines of the build's output, on failure only. */
+    error: string | null
+}
+
+/** Keyed by repo. null when the repo has no readable status yet. */
+export type DeployMap = Record<string, DeployStatus | null>
 
 /** One container's live usage, as docker stats reports it. */
 export interface ContainerStats {

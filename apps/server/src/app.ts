@@ -7,6 +7,7 @@ import {
     restartContainer,
     statusMap,
 } from './docker.ts'
+import { readDeploys } from './deploy.ts'
 import { readSystem } from './system.ts'
 
 interface AppOptions {
@@ -16,6 +17,8 @@ interface AppOptions {
     dockerUrl: string
     /** The second proxy, which passes container restarts and nothing else. */
     restartUrl: string
+    /** auto-deploy's state folder, mounted read-only. */
+    deployDir: string
     /** The built SPA. Omitted in dev, where Vite serves it. */
     webDir?: string
 }
@@ -25,13 +28,19 @@ export const createApp = ({
     iconsDir,
     dockerUrl,
     restartUrl,
+    deployDir,
     webDir,
 }: AppOptions) => {
-    const containerNames = dashboard.groups.flatMap((group) =>
-        group.services.flatMap((service) =>
-            service.container ? [service.container] : [],
-        ),
+    const services = dashboard.groups.flatMap((group) => group.services)
+    const containerNames = services.flatMap((service) =>
+        service.container ? [service.container] : [],
     )
+    // A Set: two cards can share a repo, as a web app and its API do.
+    const repos = [
+        ...new Set(
+            services.flatMap((service) => (service.repo ? [service.repo] : [])),
+        ),
+    ]
 
     const api = new Hono()
 
@@ -45,6 +54,10 @@ export const createApp = ({
     )
 
     api.get('/system', async (c) => c.json(await readSystem(dashboard.disks)))
+
+    api.get('/deploys', async (c) =>
+        c.json(await readDeploys(deployDir, repos)),
+    )
 
     // Before every per-container route: the page reaches only the containers
     // it shows, so the rest of the host stays out of reach.

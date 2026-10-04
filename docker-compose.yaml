@@ -42,6 +42,9 @@ services:
             - /mnt/adata:/mnt/adata:ro
             - /mnt/s-power:/mnt/s-power:ro
             - /mnt/passport:/mnt/passport:ro
+            # auto-deploy writes one status file per repo here; the app only
+            # reads them, so it can never affect a deploy.
+            - /home/soeweiyan/docker/auto-deploy/state:/deploy-state:ro
 
     # The app never holds docker.sock: anything that can reach the socket can
     # start, stop or create containers, which is root on the host. This proxy

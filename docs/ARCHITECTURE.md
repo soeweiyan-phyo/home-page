@@ -12,6 +12,7 @@ browser ── :3000 ──▶ home-page (Hono, Node 24, uid 1000)
                        ├─ /icons/*     config/icons, mounted :ro
                        ├─ /api/*       JSON, see below
                        │    ├─ reads   /proc, /sys/class/hwmon, statfs(each disk)
+                       │    ├─ reads   /deploy-state/<repo>.json, mounted :ro
                        │    ├─ GET  ─▶ socket-proxy  :2375 ─▶ docker.sock :ro
                        │    └─ POST ─▶ restart-proxy :2375 ─▶ docker.sock :ro
                        └─ config/dashboard.yaml, mounted :ro, read once at boot
@@ -30,6 +31,7 @@ which reaches the proxies on their loopback ports, 7052 and 7054.
 | `apps/server/src/config.ts` | The `dashboard.yaml` schema and its mapping to the `Dashboard` type, icon resolution. |
 | `apps/server/src/docker.ts` | The only module that knows Docker's JSON: container state, stats, restart.            |
 | `apps/server/src/system.ts` | Host readings: CPU, memory, temperature, uptime, disks.                               |
+| `apps/server/src/deploy.ts` | Reads auto-deploy's status files; builds GitHub commit links.                         |
 | `apps/web/src/api.ts`       | Every fetch and query option. Components never call `fetch`.                          |
 | `apps/web/src/format.ts`    | Display rules with tests: bytes, uptime, disk fill.                                   |
 | `apps/web/src/components/`  | One component per file.                                                               |
@@ -46,6 +48,7 @@ which reaches the proxies on their loopback ports, 7052 and 7054.
 | `GET /api/system`                    | `SystemStats`                           | every 5 s                               |
 | `GET /api/containers/:name/stats`    | `ContainerStats`                        | every 5 s, only while that card is open |
 | `POST /api/containers/:name/restart` | 204                                     | on click                                |
+| `GET /api/deploys`                   | `DeployMap`: configured repos only      | every 60 s                              |
 
 Each concern has its own endpoint so one failing source greys only its own
 part of the page: Docker down leaves the cards and header intact.
@@ -93,6 +96,26 @@ container with the host's filesystem mounted, which is root on the host; a
 
 There is no login. Anyone who can open the page can restart its containers;
 that is accepted for a single-user LAN.
+
+## Deploy status
+
+`~/docker/auto-deploy/deploy.sh`, outside this repo, rebuilds own projects every
+5 min. Each run it replaces `state/<repo>.json` with that cycle's outcome:
+`up-to-date`, `deploying`, `skipped-dirty`, `skipped-ahead` or `failed`, the
+commit running, and on failure the last 10 lines of build output. Compose
+mounts that folder read-only at `/deploy-state`, so the app can show a deploy
+but never affect one. Nothing parses logs.
+
+A card opts in with `repo:` in `dashboard.yaml`; two cards may share one repo.
+`readDeploys` reads only configured repos, and a missing or corrupt file reads
+`null` without hiding the others. Its schema is not strict, so a field
+`deploy.sh` adds later cannot blank an older dashboard.
+
+The card face shows a line only when something needs a look; healthy projects
+look as before. A status older than 15 min (`isStale`, three missed timer runs)
+overrides the rest: a stopped timer would otherwise leave a healthy status
+frozen forever. The full detail, with a commit link built by `commitUrl` from
+an SSH or HTTPS GitHub origin, is in the card's usage strip.
 
 ## Host readings
 

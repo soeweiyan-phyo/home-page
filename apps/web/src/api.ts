@@ -1,6 +1,7 @@
 import type {
     ContainerStats,
     Dashboard,
+    DeployMap,
     StatusMap,
     SystemStats,
 } from '@home-page/types'
@@ -32,6 +33,14 @@ export const systemQuery = queryOptions({
     queryKey: ['system'],
     queryFn: () => getJson<SystemStats>('/api/system'),
     refetchInterval: 5_000,
+})
+
+// auto-deploy writes its status files every 5 min, so faster polling would
+// only re-read the same bytes.
+export const deploysQuery = queryOptions({
+    queryKey: ['deploys'],
+    queryFn: () => getJson<DeployMap>('/api/deploys'),
+    refetchInterval: 60_000,
 })
 
 /** Polled only while a card's details are open: Docker takes a second or two

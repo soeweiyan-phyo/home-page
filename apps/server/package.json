@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "PORT=7051 node --watch-path=src --watch-path=../../config src/index.ts",
+        "dev": "PORT=7051 DEPLOY_STATE_DIR=$HOME/docker/auto-deploy/state node --watch-path=src --watch-path=../../config src/index.ts",
         "test": "vitest run",
         "typecheck": "tsc"
     },

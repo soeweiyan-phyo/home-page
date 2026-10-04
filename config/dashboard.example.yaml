@@ -5,6 +5,8 @@
 # icon: a dashboard-icons file name (jellyfin.png), a file in config/icons
 #   (/icons/film.png), or a Material Design glyph (mdi-robot).
 # container: the Docker container whose state draws the card's status dot.
+# repo: the repo auto-deploy rebuilds, named as its state/<repo>.json file;
+#   the card then shows whether its last deploy worked.
 # Every service field but name is optional.
 
 greeting: HOME
@@ -28,6 +30,7 @@ groups:
             icon: /icons/film.png
             href: http://server.local:7000
             container: my-app
+            repo: my-app
 
     - name: Planned
       collapsed: true

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useNow } from '../useNow.ts'
 
 const FORMAT = new Intl.DateTimeFormat('en-AU', {
     dateStyle: 'long',
@@ -6,13 +6,7 @@ const FORMAT = new Intl.DateTimeFormat('en-AU', {
 })
 
 export default function Clock({ className }: { className?: string }) {
-    const [now, setNow] = useState(() => new Date())
-
-    useEffect(() => {
-        const timer = setInterval(() => setNow(new Date()), 1_000)
-
-        return () => clearInterval(timer)
-    }, [])
+    const now = useNow(1_000)
 
     return (
         <time

@@ -12,6 +12,10 @@ const PORT = Number(process.env.PORT ?? 3000)
 const DOCKER_URL = process.env.DOCKER_URL ?? 'http://127.0.0.1:7052'
 const RESTART_URL = process.env.RESTART_URL ?? 'http://127.0.0.1:7054'
 
+// Compose mounts auto-deploy's state folder here; the dev script points at it
+// on the host directly.
+const DEPLOY_STATE_DIR = process.env.DEPLOY_STATE_DIR ?? '/deploy-state'
+
 const WEB_DIST = join(import.meta.dirname, '../../web/dist')
 
 const app = createApp({
@@ -20,6 +24,7 @@ const app = createApp({
     iconsDir: ICONS_DIR,
     dockerUrl: DOCKER_URL,
     restartUrl: RESTART_URL,
+    deployDir: DEPLOY_STATE_DIR,
     webDir: process.env.NODE_ENV === 'production' ? WEB_DIST : undefined,
 })
 

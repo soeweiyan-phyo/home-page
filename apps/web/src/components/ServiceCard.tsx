@@ -1,6 +1,7 @@
 import type { Icon, Service } from '@home-page/types'
 import { useId } from 'react'
 import ContainerDetails from './ContainerDetails.tsx'
+import DeployNote from './DeployNote.tsx'
 import StatusDot from './StatusDot.tsx'
 
 function ServiceIcon({ icon }: { icon: Icon }) {
@@ -75,6 +76,7 @@ export default function ServiceCard({
                             {service.description}
                         </p>
                     )}
+                    {service.repo && <DeployNote repo={service.repo} />}
                 </div>
                 {service.container && (
                     <button
@@ -96,6 +98,7 @@ export default function ServiceCard({
                 <ContainerDetails
                     id={detailsId}
                     container={service.container}
+                    repo={service.repo}
                 />
             )}
         </div>

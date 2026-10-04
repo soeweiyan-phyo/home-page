@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { diskFill, formatBytes, formatUptime } from './format.ts'
+import {
+    diskFill,
+    formatAge,
+    formatBytes,
+    formatUptime,
+    isStale,
+} from './format.ts'
 
 describe('formatBytes', () => {
     it.each([
@@ -51,5 +57,28 @@ describe('diskFill', () => {
             share: 0,
             nearlyFull: false,
         })
+    })
+})
+
+describe('formatAge', () => {
+    it.each([
+        [30, 'just now'],
+        [180, '3 min ago'],
+        [7_200, '2 h ago'],
+        [259_200, '3 d ago'],
+    ])('%d seconds reads as %s', (seconds, text) => {
+        expect(formatAge(seconds)).toBe(text)
+    })
+})
+
+describe('isStale', () => {
+    const checkedAt = '2026-10-04T12:00:00Z'
+
+    // The timer runs every 5 min; three missed runs means it has stopped.
+    it.each([
+        ['2026-10-04T12:15:00Z', false],
+        ['2026-10-04T12:15:01Z', true],
+    ])('a status checked at noon is stale at %s: %s', (now, stale) => {
+        expect(isStale(checkedAt, new Date(now))).toBe(stale)
     })
 })
