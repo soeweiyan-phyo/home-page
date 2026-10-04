@@ -1,4 +1,4 @@
-# Production image: Hono serves the built SPA, /api and /icons on 7050.
+# Production image: Hono serves the built SPA, /api and /icons on 3000.
 # config/dashboard.yaml and config/icons are mounted at run time, never copied.
 
 FROM node:24-slim AS build
@@ -40,8 +40,8 @@ COPY --from=build /app/apps/web/dist apps/web/dist
 
 ENV NODE_ENV=production
 USER node
-EXPOSE 7050
+EXPOSE 3000
 
-HEALTHCHECK CMD ["node", "-e", "fetch('http://127.0.0.1:7050/api/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+HEALTHCHECK CMD ["node", "-e", "fetch('http://127.0.0.1:3000/api/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
 
 CMD ["node", "apps/server/src/index.ts"]

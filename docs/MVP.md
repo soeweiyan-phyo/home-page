@@ -40,11 +40,15 @@ document the format. A test parses it so it cannot fall behind the schema.
 The cost: a broken edit is no longer caught by the build. The container fails
 at boot instead, and an edit needs a container restart to take effect.
 
-### Ports (block 7050–7059)
+### Ports (3000, and the block 7050–7059)
+
+The app served on 7050 while it ran beside Homepage. At the cutover it took
+Homepage's 3000, so existing bookmarks still land on the dashboard; that puts
+it outside the 7000 block on purpose. The block keeps its helpers.
 
 | Port | Use                          |
 | :--- | :--------------------------- |
-| 7050 | the app (web and API)        |
+| 3000 | the app (web and API)        |
 | 7051 | Hono in dev                  |
 | 7052 | socket proxy, loopback only  |
 | 7053 | Vite in dev                  |
@@ -318,8 +322,17 @@ copied. Changed on the way:
 
 ### 7. Cutover
 
-Stop Homepage, then update `PORT-REGISTRY.md`, `HOMELAB.md` and
-`~/docker/README.md`.
+Done 2026-10-03.
+
+- Homepage stopped with `docker compose down`; `~/docker/homepage` kept for
+  reference.
+- The app moved from 7050 to Homepage's 3000, inside the container too, so the
+  healthcheck and `EXPOSE` read the same number as the host.
+- The Homepage card left `dashboard.yaml`; the Home Page card shows the
+  app's own system mark (`/favicon.svg`).
+- `PORT-REGISTRY.md`, `HOMELAB.md`, `~/docker/README.md` and the auto-deploy
+  README now point new cards at `dashboard.yaml`, and the disk-unplug runbook
+  stops `home-page`, which holds the disks now.
 
 ## Deploy registration
 

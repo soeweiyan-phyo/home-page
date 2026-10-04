@@ -1,5 +1,6 @@
-# Production stack. Dashboard on 7050; runs beside Homepage (:3000) until the
-# cutover.
+# Production stack. Dashboard on 3000, the port Homepage held, so bookmarks to
+# it still work. The 7050 block holds the rest: dev servers on 7051 and 7053,
+# the two socket proxies on 7052 and 7054.
 #
 #   pnpm prod        # docker compose up -d --build
 #
@@ -12,7 +13,7 @@ services:
         container_name: home-page
         restart: unless-stopped
         ports:
-            - '7050:7050'
+            - '3000:3000'
         environment:
             TZ: Australia/Melbourne
             DOCKER_URL: http://socket-proxy:2375

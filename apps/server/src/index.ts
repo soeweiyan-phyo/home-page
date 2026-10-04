@@ -3,8 +3,9 @@ import { serve } from '@hono/node-server'
 import { createApp } from './app.ts'
 import { DASHBOARD_PATH, ICONS_DIR, loadDashboard } from './config.ts'
 
-// Dev sets 7051 so it can run beside the deployed container on 7050.
-const PORT = Number(process.env.PORT ?? 7050)
+// 3000, the port Homepage held, so its bookmarks still land here. Dev sets
+// 7051 so it can run beside the deployed container.
+const PORT = Number(process.env.PORT ?? 3000)
 
 // Compose sets each proxy's service name. The defaults are their loopback
 // ports, published for dev only.
