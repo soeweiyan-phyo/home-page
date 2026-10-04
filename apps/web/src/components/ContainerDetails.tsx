@@ -28,16 +28,23 @@ const bytes = (value: number | null) =>
 
 export default function ContainerDetails({
     id,
+    open,
     container,
     repo,
 }: {
     id: string
+    /** Stays mounted while closed, for the card's transition, but stops
+     * polling Docker. */
+    open: boolean
     container: string
     /** The card's auto-deployed repo, if any, for the deploy row. */
     repo: string | null
 }) {
     const queryClient = useQueryClient()
-    const { data, isError } = useQuery(containerStatsQuery(container))
+    const { data, isError } = useQuery({
+        ...containerStatsQuery(container),
+        enabled: open,
+    })
     const [confirming, setConfirming] = useState(false)
 
     const restart = useMutation({

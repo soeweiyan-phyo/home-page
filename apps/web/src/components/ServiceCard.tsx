@@ -94,12 +94,25 @@ export default function ServiceCard({
                     </button>
                 )}
             </div>
-            {open && service.container && (
-                <ContainerDetails
-                    id={detailsId}
-                    container={service.container}
-                    repo={service.repo}
-                />
+            {/* Mounted while closed so it can animate out. Grid rows rather
+                than interpolate-size, which Firefox and Safari lack; the clip
+                margin keeps the restart button's focus ring. grid-cols-1 caps
+                the column at the card: an auto column would widen to the
+                deploy row's untruncated commit message. */}
+            {service.container && (
+                <div
+                    inert={!open}
+                    className={`grid grid-cols-1 transition-[grid-template-rows,opacity] duration-250 motion-reduce:transition-none ${open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                >
+                    <div className="min-h-0 overflow-clip [overflow-clip-margin:0.5rem]">
+                        <ContainerDetails
+                            id={detailsId}
+                            open={open}
+                            container={service.container}
+                            repo={service.repo}
+                        />
+                    </div>
+                </div>
             )}
         </div>
     )
